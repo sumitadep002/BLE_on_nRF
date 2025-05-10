@@ -1,0 +1,6 @@
+if BOARD_CUST_HW_V_2
+
+config BT_CTLR
+	default BT
+
+endif # BOARD_CUST_HW_V_2

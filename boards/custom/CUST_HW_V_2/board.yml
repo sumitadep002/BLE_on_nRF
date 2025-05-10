@@ -1,0 +1,5 @@
+board:
+  name: CUST_HW_V_2
+  vendor: custom
+  socs:
+    - name: nrf52810

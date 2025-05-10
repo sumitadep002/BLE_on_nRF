@@ -1,0 +1,2 @@
+config BOARD_CUST_HW_V_2
+	select SOC_NRF52810_QFAA
