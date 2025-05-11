@@ -12,6 +12,30 @@
 		zephyr,code-partition = &slot0_partition;
 		zephyr,console =  &uart0;
 	};
+
+	leds {
+		compatible = "gpio-leds";
+		red: red {
+			gpios = <&gpio0 4 GPIO_ACTIVE_LOW>;
+			label = "red";
+		};
+
+		green: green {
+			gpios = <&gpio0 5 GPIO_ACTIVE_LOW>;
+			label = "green";
+		};
+
+		blue: blue {
+			gpios = <&gpio0 14 GPIO_ACTIVE_LOW>;
+			label = "blue";
+		};
+	};
+
+	aliases {
+		redled = &red;
+		greenled = &green;
+		blueled = &blue;
+	};
 };
 
 &gpio0 {
