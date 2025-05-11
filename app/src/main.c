@@ -6,6 +6,10 @@
 #define GREEN 1
 #define BLUE 2
 
+#define UP 0
+#define MID 1
+#define LOW 2
+
 #define RED_LED DT_ALIAS(redled)
 #define BLUE_LED DT_ALIAS(blueled)
 #define GREEN_LED DT_ALIAS(greenled)
@@ -17,25 +21,35 @@ static const struct gpio_dt_spec led_2 = GPIO_DT_SPEC_GET(BLUE_LED, gpios);
 void setup_led();
 void led_ctrl(uint8_t led, bool state);
 
+#define UP_BUTTON DT_ALIAS(upbutton)
+#define MID_BUTTON DT_ALIAS(midbutton)
+#define LOW_BUTTON DT_ALIAS(lowbutton)
+
+static const struct gpio_dt_spec sw_0 = GPIO_DT_SPEC_GET(UP_BUTTON, gpios);
+static const struct gpio_dt_spec sw_1 = GPIO_DT_SPEC_GET(MID_BUTTON, gpios);
+static const struct gpio_dt_spec sw_2 = GPIO_DT_SPEC_GET(LOW_BUTTON, gpios);
+
+void setup_led();
+void led_ctrl(uint8_t led, bool state);
+
+void setup_button();
+bool read_button(uint8_t button);
+
 int main(void)
 {
         setup_led();
+        setup_button();
+        bool state = false;
         while (1)
         {
-                led_ctrl(RED, true);
-                k_msleep(250);
-                led_ctrl(RED, false);
-                k_msleep(250);
+                state = read_button(UP);
+                led_ctrl(RED, state);
 
-                led_ctrl(GREEN, true);
-                k_msleep(250);
-                led_ctrl(GREEN, false);
-                k_msleep(250);
+                state = read_button(MID);
+                led_ctrl(GREEN, state);
 
-                led_ctrl(BLUE, true);
-                k_msleep(250);
-                led_ctrl(BLUE, false);
-                k_msleep(250);
+                state = read_button(LOW);
+                led_ctrl(BLUE, state);
         }
         return 0;
 }
@@ -102,4 +116,97 @@ void led_ctrl(uint8_t led, bool state)
                 gpio_pin_set_dt(&led_2, state);
                 printf("Blue-LED %d\n", state);
         }
+}
+
+void setup_button()
+{
+        // setup up-button
+        if (!gpio_is_ready_dt(&sw_0))
+        {
+                printf("MID-BUTTON GPIO device not ready\n");
+        }
+        else if (gpio_pin_configure_dt(&sw_0, GPIO_INPUT) != 0)
+        {
+                printf("Failed to configure UP-BUTTON pin\n");
+        }
+        else
+        {
+                printf("UP-BUTTON initialized successfully\n");
+        }
+
+        // setup mid-button
+        if (!gpio_is_ready_dt(&sw_1))
+        {
+                printf("MID-BUTTON GPIO device not ready\n");
+        }
+        else if (gpio_pin_configure_dt(&sw_1, GPIO_INPUT) != 0)
+        {
+                printf("Failed to configure MID-BUTTON pin\n");
+        }
+        else
+        {
+                printf("MID-BUTTON initialized successfully\n");
+        }
+
+        // setup low-button
+        if (!gpio_is_ready_dt(&sw_2))
+        {
+                printf("LOW-BUTTON GPIO device not ready\n");
+        }
+        else if (gpio_pin_configure_dt(&sw_2, GPIO_INPUT) != 0)
+        {
+                printf("Failed to configure LOW-BUTTON pin\n");
+        }
+        else
+        {
+                printf("LOW-BUTTON initialized successfully\n");
+        }
+}
+bool read_button(uint8_t button)
+{
+        int ret = false;
+
+        if (button == UP)
+        {
+                ret = gpio_pin_get_dt(&sw_0);
+                if (ret != 0 && ret != 1)
+                {
+                        printf("Error while reading UP-Button\n");
+                        return false;
+                }
+                else
+                {
+                        printf("Reading UP-Button -> %d\n", ret);
+                }
+        }
+
+        else if (button == MID)
+        {
+                ret = gpio_pin_get_dt(&sw_1);
+                if (ret != 0 && ret != 1)
+                {
+                        printf("Error while reading MID-Button\n");
+                        return false;
+                }
+                else
+                {
+                        printf("Reading UP-Button -> %d\n", ret);
+                }
+        }
+
+        else if (button == LOW)
+        {
+                ret = gpio_pin_get_dt(&sw_2);
+                if (ret != 0 && ret != 1)
+                {
+                        printf("Error while reading LOW-Button\n");
+                        return false;
+                }
+                else
+                {
+                        printf("Reading UP-Button -> %d\n", ret);
+                }
+        }
+
+        return ret;
 }

@@ -35,6 +35,25 @@
 		redled = &red;
 		greenled = &green;
 		blueled = &blue;
+		upbutton = &upper;
+		midbutton = &middle;
+		lowbutton = &lower;
+	};
+
+	buttons {
+		compatible = "gpio-keys";
+		upper: upper {
+			gpios = <&gpio0 1 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
+			label = "upper";
+		};
+		middle: middle {
+			gpios = <&gpio0 0 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
+			label = "middle";
+		};
+		lower: lower {
+			gpios = <&gpio0 21 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
+			label = "lower";
+		};
 	};
 };
 
