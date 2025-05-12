@@ -1,6 +1,3 @@
----
-
-```markdown
 # nRF52810 BLE Learning – Custom Board with Zephyr
 
 This repository documents my learning journey with **Bluetooth Low Energy (BLE)** development using the **nRF52810** microcontroller and **Zephyr RTOS**.
@@ -11,7 +8,6 @@ The project includes:
 - Implementing **basic BLE functionalities** (advertising, scan response, connection handling).
 - Building a **BLE Central application** (Ubuntu-based) using **Bleak**.
 
----
 
 ## 📌 Target Hardware
 
@@ -81,4 +77,3 @@ All work is tracked via GitHub issues and commits referencing:
 This repository serves both as a personal learning project and a reference for others working on similar hardware setups.
 
 ---
-```
