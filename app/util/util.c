@@ -3,6 +3,8 @@
 #include <zephyr/drivers/gpio.h>
 #include <zephyr/kernel.h>
 #include <stdio.h>
+#include <zephyr/bluetooth/bluetooth.h>
+#include <zephyr/bluetooth/gap.h>
 
 #define RED_LED DT_ALIAS(redled)
 #define GREEN_LED DT_ALIAS(greenled)
@@ -19,6 +21,11 @@ static const struct gpio_dt_spec led_2 = GPIO_DT_SPEC_GET(BLUE_LED, gpios);
 static const struct gpio_dt_spec sw_0 = GPIO_DT_SPEC_GET(UP_BUTTON, gpios);
 static const struct gpio_dt_spec sw_1 = GPIO_DT_SPEC_GET(MID_BUTTON, gpios);
 static const struct gpio_dt_spec sw_2 = GPIO_DT_SPEC_GET(LOW_BUTTON, gpios);
+
+static const struct bt_data ad[] = {
+    BT_DATA_BYTES(BT_DATA_FLAGS, BT_LE_AD_NO_BREDR),
+    BT_DATA(BT_DATA_NAME_COMPLETE, CONFIG_BT_DEVICE_NAME, strlen(CONFIG_BT_DEVICE_NAME)),
+};
 
 void setup_led(void)
 {
@@ -74,7 +81,30 @@ void led_ctrl(uint8_t led, bool state)
     }
 }
 
-void setup_button(void)
+static void (*gpio_callback)(uint8_t pin, bool state);
+
+static struct gpio_callback gpio_cb;
+
+static void gpio_isr(const struct device *port, struct gpio_callback *cb, gpio_port_pins_t pins)
+{
+    if (gpio_callback)
+    {
+        for (uint8_t pin = 0; pin < 32; pin++)
+        {
+            if (pins & BIT(pin))
+            {
+                if (pin == sw_0.pin)
+                    gpio_callback(UP, gpio_pin_get(port, pin));
+                else if (pin == sw_1.pin)
+                    gpio_callback(MID, gpio_pin_get(port, pin));
+                else if (pin == sw_2.pin)
+                    gpio_callback(LOW, gpio_pin_get(port, pin));
+            }
+        }
+    }
+}
+
+void setup_button(void (*GpioCb)(uint8_t pin, bool state))
 {
     if (!gpio_is_ready_dt(&sw_0))
     {
@@ -83,6 +113,7 @@ void setup_button(void)
     else
     {
         gpio_pin_configure_dt(&sw_0, GPIO_INPUT);
+        gpio_pin_interrupt_configure_dt(&sw_0, GPIO_INT_EDGE_FALLING);
         printf("UP button configured\n");
     }
 
@@ -93,6 +124,7 @@ void setup_button(void)
     else
     {
         gpio_pin_configure_dt(&sw_1, GPIO_INPUT);
+        gpio_pin_interrupt_configure_dt(&sw_1, GPIO_INT_EDGE_FALLING);
         printf("MID button configured\n");
     }
 
@@ -103,8 +135,14 @@ void setup_button(void)
     else
     {
         gpio_pin_configure_dt(&sw_2, GPIO_INPUT);
+        gpio_pin_interrupt_configure_dt(&sw_2, GPIO_INT_EDGE_FALLING);
         printf("LOW button configured\n");
     }
+
+    gpio_callback = GpioCb;
+
+    gpio_init_callback(&gpio_cb, gpio_isr, BIT(sw_0.pin) | BIT(sw_1.pin) | BIT(sw_2.pin));
+    gpio_add_callback(sw_0.port, &gpio_cb);
 }
 
 bool read_button(uint8_t button)
@@ -130,4 +168,56 @@ bool read_button(uint8_t button)
     }
 
     return value == 1;
+}
+
+void ble_init()
+{
+    int err = bt_enable(NULL);
+    if (err)
+    {
+        printf("BLE-Init Failed (%d)\n", err);
+    }
+    else
+    {
+        printf("BLE-Intialized!!!\n");
+    }
+}
+
+void ble_deinit()
+{
+    int err = bt_disable();
+    if (err)
+    {
+        printf("BLE-DeInit Failed (%d)\n", err);
+    }
+    else
+    {
+        printf("BLE-DeIntialized!!!\n");
+    }
+}
+
+void ble_start_adv()
+{
+    int err = bt_le_adv_start(BT_LE_ADV_CONN, ad, ARRAY_SIZE(ad), NULL, 0);
+    if (err)
+    {
+        printf("Advertisement Failed to Start\n");
+    }
+    else
+    {
+        printf("Advertisement started...");
+    }
+}
+
+void ble_stop_adv()
+{
+    int err = bt_le_adv_stop();
+    if (err)
+    {
+        printf("Advertisement Failed to Stop\n");
+    }
+    else
+    {
+        printf("Advertisement stopped!!!");
+    }
 }

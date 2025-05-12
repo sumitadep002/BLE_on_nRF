@@ -15,7 +15,12 @@
 void setup_led(void);
 void led_ctrl(uint8_t led, bool state);
 
-void setup_button(void);
+void setup_button(void (*GpioCb)(uint8_t pin, bool state));
 bool read_button(uint8_t button);
+
+void ble_init();
+void ble_deinit();
+void ble_start_adv();
+void ble_stop_adv();
 
 #endif // UTIL_H
