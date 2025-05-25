@@ -1,10 +1,15 @@
 #include "util.h"
 #include <zephyr/device.h>
 #include <zephyr/drivers/gpio.h>
+#include <zephyr/drivers/adc.h>
 #include <zephyr/kernel.h>
 #include <stdio.h>
 #include <zephyr/bluetooth/bluetooth.h>
 #include <zephyr/bluetooth/gap.h>
+
+const struct adc_dt_spec adc_channel = ADC_DT_SPEC_GET(DT_PATH(zephyr_user));
+struct adc_sequence sequence;
+int16_t buf;
 
 #define RED_LED DT_ALIAS(redled)
 #define GREEN_LED DT_ALIAS(greenled)
@@ -220,4 +225,44 @@ void ble_stop_adv()
     {
         printf("Advertisement stopped!!!");
     }
+}
+
+bool adc_init(void)
+{
+
+    if (!adc_is_ready_dt(&adc_channel))
+    {
+        printf(" Device isn't ready\n");
+        return false;
+    }
+
+    int err = adc_channel_setup_dt(&adc_channel);
+    if (err != 0)
+    {
+        printf("failed to setup adc channel(%d)\n", err);
+        return false;
+    }
+
+    sequence.buffer = &buf;
+    sequence.buffer_size = sizeof(buf);
+
+    err = adc_sequence_init_dt(&adc_channel, &sequence);
+    if (err != 0)
+    {
+        printf("failed to initialize adc sequence (%d)\n", err);
+        return false;
+    }
+
+    return true;
+}
+
+uint32_t get_device_voltage(void)
+{
+
+    adc_read_dt(&adc_channel, &sequence);
+
+    // Convert ADC value to millivolts manually
+    int32_t battery_voltage_mv = (buf * 0.6 * 1000 * 6) / ((1 << 12) - 1); //(1 << ADC_RESOLUTION) - 1) means (2^ADC_RESOLUTION -1)
+
+    return battery_voltage_mv;
 }
