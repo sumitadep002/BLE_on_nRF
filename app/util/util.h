@@ -22,6 +22,7 @@ void ble_init();
 void ble_deinit();
 void ble_start_adv();
 void ble_stop_adv();
+void ble_update_data(uint32_t data);
 
 bool adc_init();
 uint32_t get_device_voltage();

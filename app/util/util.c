@@ -27,9 +27,12 @@ static const struct gpio_dt_spec sw_0 = GPIO_DT_SPEC_GET(UP_BUTTON, gpios);
 static const struct gpio_dt_spec sw_1 = GPIO_DT_SPEC_GET(MID_BUTTON, gpios);
 static const struct gpio_dt_spec sw_2 = GPIO_DT_SPEC_GET(LOW_BUTTON, gpios);
 
-static const struct bt_data ad[] = {
-    BT_DATA_BYTES(BT_DATA_FLAGS, BT_LE_AD_NO_BREDR),
+static uint8_t custom_data[6] = {0x59, 0x00, 0x00, 0x00, 0x00, 0x00}; // 0x0059 = Nordic
+
+static struct bt_data ad[] = {
+    BT_DATA_BYTES(BT_DATA_FLAGS, BT_LE_AD_GENERAL | BT_LE_AD_NO_BREDR),
     BT_DATA(BT_DATA_NAME_COMPLETE, CONFIG_BT_DEVICE_NAME, strlen(CONFIG_BT_DEVICE_NAME)),
+    BT_DATA(BT_DATA_MANUFACTURER_DATA, custom_data, sizeof(custom_data)),
 };
 
 void setup_led(void)
@@ -225,6 +228,14 @@ void ble_stop_adv()
     {
         printf("Advertisement stopped!!!");
     }
+}
+
+void ble_update_data(uint32_t data)
+{
+    // Update only the payload part (after company ID)
+    memcpy(&custom_data[2], &data, sizeof(data));
+
+    bt_le_adv_update_data(ad, ARRAY_SIZE(ad), NULL, 0);
 }
 
 bool adc_init(void)
