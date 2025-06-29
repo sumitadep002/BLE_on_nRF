@@ -81,8 +81,6 @@ int main(void)
                         led_ctrl(BLUE, false);
                         k_msleep(250);
 
-                        printf("Voltage: %d\r\n", battery_voltage);
-
                         battery_voltage = get_device_voltage();
 
                         ble_update_data(battery_voltage);

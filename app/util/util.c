@@ -39,32 +39,29 @@ void setup_led(void)
 {
     if (!gpio_is_ready_dt(&led_0))
     {
-        printf("Red LED not ready\n");
+        printf("Red LED not ready\r\n");
     }
     else
     {
         gpio_pin_configure_dt(&led_0, GPIO_OUTPUT_INACTIVE);
-        printf("Red LED configured\n");
     }
 
     if (!gpio_is_ready_dt(&led_1))
     {
-        printf("Green LED not ready\n");
+        printf("Green LED not ready\r\n");
     }
     else
     {
         gpio_pin_configure_dt(&led_1, GPIO_OUTPUT_INACTIVE);
-        printf("Green LED configured\n");
     }
 
     if (!gpio_is_ready_dt(&led_2))
     {
-        printf("Blue LED not ready\n");
+        printf("Blue LED not ready\r\n");
     }
     else
     {
         gpio_pin_configure_dt(&led_2, GPIO_OUTPUT_INACTIVE);
-        printf("Blue LED configured\n");
     }
 }
 
@@ -74,15 +71,12 @@ void led_ctrl(uint8_t led, bool state)
     {
     case RED:
         gpio_pin_set_dt(&led_0, state);
-        printf("RED LED -> %d\n", state);
         break;
     case GREEN:
         gpio_pin_set_dt(&led_1, state);
-        printf("GREEN LED -> %d\n", state);
         break;
     case BLUE:
         gpio_pin_set_dt(&led_2, state);
-        printf("BLUE LED -> %d\n", state);
         break;
     default:
         break;
@@ -116,35 +110,32 @@ void setup_button(void (*GpioCb)(uint8_t pin, bool state))
 {
     if (!gpio_is_ready_dt(&sw_0))
     {
-        printf("UP button not ready\n");
+        printf("UP button not ready\r\n");
     }
     else
     {
         gpio_pin_configure_dt(&sw_0, GPIO_INPUT);
         gpio_pin_interrupt_configure_dt(&sw_0, GPIO_INT_EDGE_FALLING);
-        printf("UP button configured\n");
     }
 
     if (!gpio_is_ready_dt(&sw_1))
     {
-        printf("MID button not ready\n");
+        printf("MID button not ready\r\n");
     }
     else
     {
         gpio_pin_configure_dt(&sw_1, GPIO_INPUT);
         gpio_pin_interrupt_configure_dt(&sw_1, GPIO_INT_EDGE_FALLING);
-        printf("MID button configured\n");
     }
 
     if (!gpio_is_ready_dt(&sw_2))
     {
-        printf("LOW button not ready\n");
+        printf("LOW button not ready\r\n");
     }
     else
     {
         gpio_pin_configure_dt(&sw_2, GPIO_INPUT);
         gpio_pin_interrupt_configure_dt(&sw_2, GPIO_INT_EDGE_FALLING);
-        printf("LOW button configured\n");
     }
 
     gpio_callback = GpioCb;
@@ -161,15 +152,12 @@ bool read_button(uint8_t button)
     {
     case UP:
         value = gpio_pin_get_dt(&sw_0);
-        printf("Reading UP button -> %d\n", value);
         break;
     case MID:
         value = gpio_pin_get_dt(&sw_1);
-        printf("Reading MID button -> %d\n", value);
         break;
     case LOW:
         value = gpio_pin_get_dt(&sw_2);
-        printf("Reading LOW button -> %d\n", value);
         break;
     default:
         return false;
@@ -183,11 +171,7 @@ void ble_init()
     int err = bt_enable(NULL);
     if (err)
     {
-        printf("BLE-Init Failed (%d)\n", err);
-    }
-    else
-    {
-        printf("BLE-Intialized!!!\n");
+        printf("BLE-Init Failed (%d)\r\n", err);
     }
 }
 
@@ -196,11 +180,7 @@ void ble_deinit()
     int err = bt_disable();
     if (err)
     {
-        printf("BLE-DeInit Failed (%d)\n", err);
-    }
-    else
-    {
-        printf("BLE-DeIntialized!!!\n");
+        printf("BLE-DeInit Failed (%d)\r\n", err);
     }
 }
 
@@ -209,11 +189,7 @@ void ble_start_adv()
     int err = bt_le_adv_start(BT_LE_ADV_CONN, ad, ARRAY_SIZE(ad), NULL, 0);
     if (err)
     {
-        printf("Advertisement Failed to Start\n");
-    }
-    else
-    {
-        printf("Advertisement started...");
+        printf("Advertisement Failed to Start\r\n");
     }
 }
 
@@ -222,11 +198,7 @@ void ble_stop_adv()
     int err = bt_le_adv_stop();
     if (err)
     {
-        printf("Advertisement Failed to Stop\n");
-    }
-    else
-    {
-        printf("Advertisement stopped!!!");
+        printf("Advertisement Failed to Stop\r\n");
     }
 }
 
@@ -243,14 +215,14 @@ bool adc_init(void)
 
     if (!adc_is_ready_dt(&adc_channel))
     {
-        printf(" Device isn't ready\n");
+        printf(" Device isn't ready\r\n");
         return false;
     }
 
     int err = adc_channel_setup_dt(&adc_channel);
     if (err != 0)
     {
-        printf("failed to setup adc channel(%d)\n", err);
+        printf("failed to setup adc channel(%d)\r\n", err);
         return false;
     }
 
@@ -260,7 +232,7 @@ bool adc_init(void)
     err = adc_sequence_init_dt(&adc_channel, &sequence);
     if (err != 0)
     {
-        printf("failed to initialize adc sequence (%d)\n", err);
+        printf("failed to initialize adc sequence (%d)\r\n", err);
         return false;
     }
 
